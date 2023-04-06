@@ -1,29 +1,29 @@
 <template>
-  <v-app-bar
-    height="55"
-    style="background: rgba(0, 0, 0, 0)"
-    elevation="0"
-    absolute
-  >
-    <v-tabs color="primary" class="ml-10">
-      <router-link to="/"
-        ><v-img src="../assets/logo.svg" width="100" class="ma-3 mr-5"></v-img>
-      </router-link>
-      <v-tab exact router to="#">
-        Home
-      </v-tab>
-      <v-tab router to="#">
-        My Blogs
-      </v-tab>
-      <v-tab>
-        Login/Register
-      </v-tab>
-    </v-tabs>
+  <v-app-bar height="55" elevation="0" absolute>
+    <router-link class="ml-10" to="/"
+      ><v-img src="../assets/logo.svg" width="100" class="ma-3 mr-5"></v-img>
+    </router-link>
     <template v-slot:append>
+      <v-tabs color="primary">
+        <v-tab exact router to="/">
+          Home
+        </v-tab>
+        <v-tab router to="#">
+          My Blogs
+        </v-tab>
+        <v-tab router to="#">
+          My Faves
+        </v-tab>
+        <v-btn variant="outlined" color="secondary">
+          Login/Signup
+        </v-btn>
+      </v-tabs>
       <v-avatar color="surface-variant" size="35" class="mr-5"></v-avatar>
     </template>
   </v-app-bar>
-  <v-container class="mt-15"><router-view /></v-container>
+  <v-main>
+    <router-view />
+  </v-main>
 </template>
 
 <script>
