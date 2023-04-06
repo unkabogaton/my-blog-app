@@ -14,7 +14,7 @@
         <v-tab router to="#">
           My Faves
         </v-tab>
-        <v-btn variant="outlined" color="secondary">
+        <v-btn variant="flat" color="secondary" class="mt-2">
           Login/Signup
         </v-btn>
       </v-tabs>
