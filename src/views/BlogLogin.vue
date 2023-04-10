@@ -36,10 +36,11 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const user = ref({ email: "", password: "" });
 const loading = ref(false);
+const auth = getAuth();
 
 function login() {
   loading.value = true;
-  const auth = getAuth();
+  console.log(user.value.email, user.value.password);
   signInWithEmailAndPassword(auth, user.value.email, user.value.password).catch(
     error => {
       const errorCode = error.code;
