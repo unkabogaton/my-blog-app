@@ -45,25 +45,36 @@
         >
       </v-row>
       <div class="text-h6 mt-9 mb-2 text-secondary">All Articles</div>
+      <v-chip-group selected-class="primary" v-model="filter" class="mb-2">
+        <v-chip>Latest</v-chip>
+        <v-chip>Oldest</v-chip>
+        <v-chip>Alpabhetical</v-chip></v-chip-group
+      >
       <v-row dense>
-        <v-col v-for="card in cards" :key="card.title" cols="3">
+        <v-col v-for="blog in blogs" :key="blog.id" cols="3">
           <v-card width="260" elevation="0" to="#" class="pb-3">
-            <v-img :src="card.src" width="300" height="150">
-              <v-card
-                class="text-caption text-center text-main"
-                flat
-                color="secondary"
-                max-width="60"
-              >
-                Featured
-              </v-card>
+            <v-img :src="blog.photoLink" width="300" height="150">
+              <v-chip variant="flat" color="secondary" label>
+                {{ blog.categories[0] }}
+              </v-chip>
             </v-img>
-            <v-card color="primary" height="3" flat></v-card>
-            <div class="text-h6 font-weight-medium mt-2 mb-n1">
-              {{ card.title }}
+            <div class="text-h6 font-weight-medium my-2 title-post">
+              {{ blog.title }}
             </div>
             <div class="text-caption">
-              written by: 1,000 miles of wonder
+              <v-chip
+                v-for="(author, i) in blog.author"
+                :key="i"
+                class="mr-2"
+                size="x-small"
+              >
+                <span> {{ author.surname }}</span>
+                <template v-slot:prepend>
+                  <v-avatar color="primary" start>{{
+                    author.initials
+                  }}</v-avatar></template
+                >
+              </v-chip>
             </div>
           </v-card>
         </v-col>
@@ -73,26 +84,12 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { db } from "@/firebase";
+import { collection, getDocs } from "firebase/firestore";
+import { useCollection } from "vuefire";
 
-const cards = ref([
-  {
-    title: "Pre-fab homes",
-    src: "https://cdn.vuetifyjs.com/images/cards/plane.jpg"
-  },
-  {
-    title: "Favorite road trips",
-    src: "https://cdn.vuetifyjs.com/images/cards/plane.jpg"
-  },
-  {
-    title: "Best airlines",
-    src: "https://cdn.vuetifyjs.com/images/cards/plane.jpg"
-  },
-  {
-    title: "Best airlines",
-    src: "https://cdn.vuetifyjs.com/images/cards/plane.jpg"
-  }
-]);
+const blogs = useCollection(collection(db, "blogs"));
 
 const categories = ref([
   "Technology",
@@ -102,6 +99,20 @@ const categories = ref([
   "Reading",
   "Professionals"
 ]);
+
+const filter = ref("");
+
+onMounted(async () => {
+  const querySnapshot = await getDocs(collection(db, "blogs"));
+  querySnapshot.forEach(doc => {
+    // doc.data() is never undefined for query doc snapshots
+    console.log(doc.id, " => ", doc.data());
+  });
+});
 </script>
 
-<style></style>
+<style>
+.title-post {
+  line-height: 1.1em !important;
+}
+</style>
