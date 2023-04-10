@@ -51,6 +51,9 @@ import { ref } from "vue";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { db } from "@/firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const password = ref("");
 
@@ -78,6 +81,7 @@ function signup() {
       console.log(token.uid);
       await setDoc(doc(db, "users", token.uid), user.value);
       loading.value = false;
+      router.push({ name: "MyBlogs" });
     })
     .catch(error => {
       const errorCode = error.code;

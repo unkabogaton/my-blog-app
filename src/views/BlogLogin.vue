@@ -3,6 +3,10 @@
     <v-card class="mx-auto pa-7 mt-10" max-width="500" elevation="10">
       <div class="text-h5 font-weight-bold text-secondary">Login</div>
       <v-card flat height="2" color="primary" class="mb-6"></v-card>
+      <div class="mb-2 text-subtitle-2">
+        No account yet?
+        <router-link :to="{ name: 'Signup' }">Sign Up</router-link>
+      </div>
       <v-text-field
         label="Email"
         density="compact"
@@ -33,10 +37,13 @@
 <script setup>
 import { ref } from "vue";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "vue-router";
+
+const auth = getAuth();
+const router = useRouter();
 
 const user = ref({ email: "", password: "" });
 const loading = ref(false);
-const auth = getAuth();
 
 function login() {
   loading.value = true;
@@ -48,6 +55,7 @@ function login() {
       console.log(errorCode, errorMessage);
     }
   );
+  router.push({ name: "MyBlogs" });
   loading.value = false;
 }
 </script>
