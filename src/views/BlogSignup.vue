@@ -11,19 +11,19 @@
         label="First Name"
         density="compact"
         required
-        v-model="user.firstname"
+        v-model.trim="user.firstname"
       ></v-text-field>
       <v-text-field
         label="Last Name"
         density="compact"
         required
-        v-model="user.surname"
+        v-model.trim="user.surname"
       ></v-text-field>
       <v-text-field
         label="Email"
         density="compact"
         required
-        v-model="user.email"
+        v-model.trim="user.email"
       ></v-text-field>
       <v-text-field
         label="Password"
@@ -59,6 +59,7 @@ const user = ref({
   surname: "",
   email: "",
   role: "writer",
+  initials: "",
   dateCreated: Date.now()
 });
 
@@ -68,6 +69,8 @@ function signup() {
   loading.value = true;
   const email = user.value.email;
   const auth = getAuth();
+  user.value.initials =
+    user.value.firstname.charAt(0) + user.value.surname.charAt(0);
   createUserWithEmailAndPassword(auth, email, password.value)
     .then(async userCredential => {
       // Signed in
@@ -75,15 +78,12 @@ function signup() {
       console.log(token.uid);
       await setDoc(doc(db, "users", token.uid), user.value);
       loading.value = false;
-
-      // ...
     })
     .catch(error => {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(errorCode, errorMessage);
       loading.value = false;
-      // ..
     });
 }
 </script>
