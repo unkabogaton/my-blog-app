@@ -2,12 +2,13 @@
   <v-container>
     <div class="text-h4 font-weight-bold text-secondary">Manage Blogs</div>
     <v-card flat height="2" color="primary" class="mb-6"></v-card>
-
     <v-row>
       <v-col cols="10">
         <v-text-field
           prepend-inner-icon="mdi-magnify"
           density="compact"
+          v-model.trim="search"
+          @keyup.enter="searchBlog"
           required
         ></v-text-field> </v-col
       ><v-col cols="2"
@@ -36,14 +37,14 @@
       >
         <v-row align="center" justify="center">
           <v-col cols="2"
-            ><v-img height="50" :src="blog.blogData.photoLink"></v-img
+            ><v-img height="50" :src="blog.photoLink"></v-img
           ></v-col>
           <v-col cols="4" class="my-3">
             <v-chip
               variant="flat"
               color="secondary"
               size="x-small"
-              v-for="(category, i) in blog.blogData.categories"
+              v-for="(category, i) in blog.categories"
               :key="i"
               label
               class="mr-1"
@@ -51,30 +52,26 @@
               {{ category }}
             </v-chip>
             <div class="text-subtitle font-weight-bold">
-              {{ blog.blogData.title }}
+              {{ blog.title }}
             </div>
           </v-col>
           <v-col cols="2">
             <div class="font-weight-medium text-caption">
               <span class="font-weight-light">Created: </span>
-              {{
-                new Date(blog.blogData.dateCreated).toString().split(" GMT")[0]
-              }}
+              {{ new Date(blog.dateCreated).toString().split(" GMT")[0] }}
             </div>
             <div
               class="font-weight-medium text-caption"
-              v-if="blog.blogData.dateUpdated"
+              v-if="blog.dateUpdated"
             >
               <span class="font-weight-light">Created: </span
-              >{{
-                new Date(blog.blogData.dateUpdated).toString().split(" GMT")[0]
-              }}
+              >{{ new Date(blog.dateUpdated).toString().split(" GMT")[0] }}
             </div>
           </v-col>
           <v-col cols="2" class="text-caption">
             BY:
             <v-chip
-              v-for="(author, i) in blog.blogData.author"
+              v-for="(author, i) in blog.author"
               :key="i"
               class="ma-1"
               size="small"
@@ -100,7 +97,7 @@
                 block
                 size="small"
                 @click="
-                  blogParams.title = blog.blogData.title;
+                  blogParams.title = blog.title;
                   blogParams.id = blog.id;
                   dialog.delete = true;
                 "
@@ -153,24 +150,25 @@ import {
   where,
   getDocs,
   deleteDoc,
-  doc
+  doc,
+  orderBy,
+  startAt,
+  endAt,
+  limit
 } from "firebase/firestore";
-
 const blogs = ref([]);
-
 const blogParams = ref({
   id: "",
   title: ""
 });
-
 const dialog = ref({
   delete: false
 });
-
 const loading = ref({
   button: false,
   data: false
 });
+const search = ref("");
 
 onMounted(async () => {
   fetchBlog();
@@ -186,22 +184,33 @@ async function deleteBlog() {
 
 async function fetchBlog() {
   loading.value.data = true;
-  blogs.value = [];
   const uid = sessionStorage.getItem("uid");
   const q = query(
     collection(db, "blogs"),
-    where("authorId", "array-contains", uid)
+    where("authorId", "array-contains", uid),
+    orderBy("dateCreated", "desc")
   );
   const querySnapshot = await getDocs(q);
-  querySnapshot.forEach(doc => {
-    const data = {
-      id: doc.id,
-      blogData: doc.data()
-    };
-    blogs.value.push(data);
-  });
+  blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   loading.value.data = false;
 }
+
+async function searchBlog() {
+  const blogQuery = search.value;
+  const q = query(
+    collection(db, "blogs"),
+    orderBy("title"),
+    startAt(blogQuery),
+    endAt(blogQuery + "\uf8ff"),
+    limit(20)
+  );
+  const querySnapshot = await getDocs(q);
+  blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+// blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+// blogs.value = [...blogs.value, ...querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))];
+// async function (){}
+// const q = query(citiesRef, orderBy("title", "desc"), limit(3));
 </script>
 
 <style></style>
