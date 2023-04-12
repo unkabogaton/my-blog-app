@@ -13,7 +13,7 @@
         <div class="text-h3 my-2">Title</div>
         <div class="text-h5 mb-2">subtitle</div>
         <span class="text-caption">Written by: </span>
-        <div class="text-body-1 mt-7">Content</div></v-col
+        <div class="text-body-1 mt-7 text-justify">Content</div></v-col
       ><v-col cols="2">
         <div class="text-h6 text-main">Categories</div>
         <div
