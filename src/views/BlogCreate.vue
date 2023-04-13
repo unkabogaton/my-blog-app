@@ -64,7 +64,7 @@
         <v-textarea
           class=""
           density="compact"
-          v-model="photoInitialLink"
+          v-model.trim="photoInitialLink"
         ></v-textarea>
         <v-card-actions
           ><v-btn
@@ -94,13 +94,13 @@
         label="Title"
         density="compact"
         required
-        v-model="blogData.title"
+        v-model.trim="blogData.title"
       ></v-text-field>
       <v-text-field
         class="subtitle"
         label="Subtitle (optional)"
         density="compact"
-        v-model="blogData.subtitle"
+        v-model.trim="blogData.subtitle"
       ></v-text-field>
       <v-select
         :items="['Me only', 'Me and Others']"
@@ -135,7 +135,7 @@
             </div></v-col
           ><v-col cols="4">
             <v-text-field
-              placeholder="Email of Additonal Author"
+              placeholder="Email of Additional Author"
               density="compact"
               required
               v-model.trim="email"
@@ -171,7 +171,7 @@
 <script setup>
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watchEffect } from "vue";
 import { db } from "@/firebase";
 import {
   doc,
@@ -196,7 +196,9 @@ const blogData = ref({
   photoLink: "",
   status: "for approval",
   subtitle: "",
-  title: ""
+  title: "",
+  titleLowcase: "",
+  searchKeywords: []
 });
 
 const loading = ref({
@@ -223,17 +225,21 @@ const photoInitialRef = ref("");
 const photoInitialLink = ref("");
 const authorship = ref("Me only");
 const email = ref("");
+const userId = ref("");
 
 // display
 onMounted(async () => {
-  const uid = sessionStorage.getItem("uid");
-  const docRef = doc(db, "users", uid);
+  userId.value = sessionStorage.getItem("uid");
+  const docRef = doc(db, "users", userId.value);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
     user.value = docSnap.data();
   } else {
     alert("No such document!");
   }
+});
+
+watchEffect(() => {
   if (authorship.value == "Me only") {
     blogData.value.author = [
       {
@@ -242,7 +248,7 @@ onMounted(async () => {
         initials: user.value.initials
       }
     ];
-    blogData.value.authorId = [uid];
+    blogData.value.authorId = [userId.value];
   }
 });
 
@@ -284,6 +290,10 @@ function removePhoto() {
 
 async function addBlog() {
   loading.value.uploadBlog = true;
+  blogData.value.titleLowcase = blogData.value.title.toLowerCase();
+  blogData.value.searchKeywords = blogData.value.titleLowcase
+    .replace(/[^a-zA-Z ]/g, "")
+    .split(" ");
   blogData.value.photoLink = photoInitial.value;
   const blog = doc(collection(db, "blogs"));
   await setDoc(blog, blogData.value);
