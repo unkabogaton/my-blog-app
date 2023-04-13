@@ -2,21 +2,10 @@
   <v-container>
     <div class="text-h4 font-weight-bold text-secondary">Manage Blogs</div>
     <v-card flat height="2" color="primary" class="mb-6"></v-card>
-    <v-row>
-      <v-col cols="10">
-        <v-text-field
-          prepend-inner-icon="mdi-magnify"
-          density="compact"
-          v-model.trim="search"
-          @keyup.enter="searchBlog"
-          required
-        ></v-text-field> </v-col
-      ><v-col cols="2"
-        ><v-btn variant="flat" color="primary" :to="{ name: 'Create' }">
-          Publish Blog
-        </v-btn></v-col
-      >
-    </v-row>
+    <v-btn variant="flat" color="primary" :to="{ name: 'Create' }" class="mb-6">
+      <v-icon>mdi-plus</v-icon>
+      Create Blog
+    </v-btn>
     <div class="text-center mt-10" v-if="loading.data == true">
       <v-progress-circular
         indeterminate
@@ -64,7 +53,7 @@
               class="font-weight-medium text-caption"
               v-if="blog.dateUpdated"
             >
-              <span class="font-weight-light">Created: </span
+              <span class="font-weight-light">Updated: </span
               >{{ new Date(blog.dateUpdated).toString().split(" GMT")[0] }}
             </div>
           </v-col>
@@ -86,7 +75,12 @@
           >
           <v-col cols="2">
             <v-row class="ma-2">
-              <v-btn variant="flat" color="info" block size="small"
+              <v-btn
+                variant="flat"
+                color="info"
+                block
+                size="small"
+                :to="{ name: 'Edit', params: { id: blog.id } }"
                 >Edit</v-btn
               ></v-row
             >
@@ -151,10 +145,7 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  orderBy,
-  startAt,
-  endAt,
-  limit
+  orderBy
 } from "firebase/firestore";
 const blogs = ref([]);
 const blogParams = ref({
@@ -168,7 +159,6 @@ const loading = ref({
   button: false,
   data: false
 });
-const search = ref("");
 
 onMounted(async () => {
   fetchBlog();
@@ -194,19 +184,11 @@ async function fetchBlog() {
   blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   loading.value.data = false;
 }
-
-async function searchBlog() {
-  const blogQuery = search.value;
-  const q = query(
-    collection(db, "blogs"),
-    orderBy("title"),
-    startAt(blogQuery),
-    endAt(blogQuery + "\uf8ff"),
-    limit(20)
-  );
-  const querySnapshot = await getDocs(q);
-  blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-}
+// const newBlogs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+// blogs.value = [
+//   ...blogs.value.filter(blog => newBlogs.every(newBlog => newBlog.id !== blog.id)),
+//   ...newBlogs
+// ];
 // blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 // blogs.value = [...blogs.value, ...querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))];
 // async function (){}

@@ -60,7 +60,12 @@
       </v-chip-group>
       <v-row dense>
         <v-col v-for="blog in blogs" :key="blog.id" cols="3">
-          <v-card max-width="260" elevation="0" to="#" class="pb-3 mb-5">
+          <v-card
+            max-width="260"
+            elevation="0"
+            :to="{ name: 'View', params: { id: blog.id } }"
+            class="pb-3 mb-5"
+          >
             <v-img :src="blog.photoLink" width="300" height="150">
               <v-chip variant="flat" color="secondary" label size="small">
                 {{ blog.categories[0] }}
