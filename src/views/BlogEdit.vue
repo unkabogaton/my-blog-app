@@ -7,14 +7,13 @@
       :width="10"
     ></v-progress-circular>
   </div>
-  <div v-else>
+  <v-form ref="form" v-else>
     <v-app-bar
       :image="photoInitial"
       color="secondary"
       absolute
       height="400"
       flat
-      class=""
     >
       <div class="mx-auto" v-if="photoInitial == ''">
         <v-btn
@@ -87,6 +86,8 @@
         density="compact"
         label="Category"
         v-model="blogData.categories"
+        :rules="rules"
+        required
         multiple
       ></v-select>
       <v-text-field
@@ -95,6 +96,7 @@
         density="compact"
         required
         v-model.trim="blogData.title"
+        :rules="rules"
       ></v-text-field>
       <v-text-field
         class="subtitle"
@@ -136,7 +138,6 @@
               <v-text-field
                 placeholder="Email of Additional Author"
                 density="compact"
-                required
                 v-model.trim="email"
               ></v-text-field
             ></v-col>
@@ -167,10 +168,17 @@
       />
       <div class="my-10">
         <v-btn @click="updateBlog" color="primary">Update Blog</v-btn>
-        <v-btn router :to="{ name: 'Home' }" class="ml-3">Preview Blog</v-btn>
       </div>
     </v-container>
-  </div>
+    <v-snackbar v-model="snackbar">
+      {{ text }}
+      <template v-slot:actions>
+        <v-btn color="primary" variant="text" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </v-form>
 </template>
 
 <script setup>
@@ -232,6 +240,11 @@ const photoInitialRef = ref("");
 const photoInitialLink = ref("");
 const email = ref("");
 const userId = ref("");
+const rules = ref([v => !!v || "Item is required"]);
+const form = ref("");
+const snackbar = ref(false);
+const text = ref("");
+
 // display
 onMounted(async () => {
   fetchBlog();
@@ -296,6 +309,22 @@ function removePhoto() {
 }
 
 async function updateBlog() {
+  const { valid } = await form.value.validate();
+  if (!valid) {
+    text.value = "Please fill the required fields";
+    snackbar.value = true;
+    return;
+  }
+  if (!photoInitial.value) {
+    text.value = "Please upload a photo";
+    snackbar.value = true;
+    return;
+  }
+  if (!blogData.value.content) {
+    text.value = "Please provide content";
+    snackbar.value = true;
+    return;
+  }
   loading.value.data = true;
   blogData.value.titleLowcase = blogData.value.title.toLowerCase();
   blogData.value.searchKeywords = blogData.value.titleLowcase

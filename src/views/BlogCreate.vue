@@ -7,14 +7,13 @@
       :width="10"
     ></v-progress-circular>
   </div>
-  <div v-else>
+  <v-form ref="form" v-else>
     <v-app-bar
       :image="photoInitial"
       color="secondary"
       absolute
       height="400"
       flat
-      class=""
     >
       <div class="mx-auto" v-if="photoInitial == ''">
         <v-btn
@@ -65,6 +64,7 @@
           class=""
           density="compact"
           v-model.trim="photoInitialLink"
+          :rules="rules"
         ></v-textarea>
         <v-card-actions
           ><v-btn
@@ -74,6 +74,7 @@
               photoInitial = photoInitialLink;
               dialog.link = false;
             "
+            :disabled="photoInitialLink == ''"
             >Confirm</v-btn
           ><v-btn color="secondary" @click.stop="dialog.link = false"
             >Cancel</v-btn
@@ -88,12 +89,15 @@
         label="Category"
         v-model="blogData.categories"
         multiple
+        required
+        :rules="rules"
       ></v-select>
       <v-text-field
         class="title"
         label="Title"
         density="compact"
         required
+        :rules="rules"
         v-model.trim="blogData.title"
       ></v-text-field>
       <v-text-field
@@ -159,13 +163,22 @@
         theme="snow"
         v-model:content="blogData.content"
         placeholder="Content"
+        required
+        :rules="rules"
       />
       <div class="my-10">
         <v-btn @click="addBlog" color="primary">Publish Blog</v-btn>
-        <v-btn router :to="{ name: 'Home' }" class="ml-3">Preview Blog</v-btn>
       </div>
     </v-container>
-  </div>
+    <v-snackbar v-model="snackbar">
+      {{ text }}
+      <template v-slot:actions>
+        <v-btn color="primary" variant="text" @click="snackbar = false">
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </v-form>
 </template>
 
 <script setup>
@@ -200,15 +213,12 @@ const blogData = ref({
   titleLowcase: "",
   searchKeywords: []
 });
-
 const loading = ref({
   uploadBlog: false
 });
-
 const dialog = ref({
   link: false
 });
-
 const categories = ref([
   "Technology",
   "Management",
@@ -217,7 +227,6 @@ const categories = ref([
   "Reading",
   "Professionals"
 ]);
-
 const user = ref({});
 const photoInitial = ref("");
 const photoFile = ref(null);
@@ -226,6 +235,10 @@ const photoInitialLink = ref("");
 const authorship = ref("Me only");
 const email = ref("");
 const userId = ref("");
+const rules = ref([v => !!v || "Item is required"]);
+const form = ref("");
+const snackbar = ref(false);
+const text = ref("");
 
 // display
 onMounted(async () => {
@@ -254,7 +267,11 @@ watchEffect(() => {
 
 // functions
 async function addAuthor() {
-  if (email.value == "") return;
+  if (email.value == "") {
+    text.value = "Please provide email";
+    snackbar.value = true;
+    return;
+  }
   const q = query(collection(db, "users"), where("email", "==", email.value));
   const querySnapshot = await getDocs(q);
   querySnapshot.forEach(doc => {
@@ -289,6 +306,22 @@ function removePhoto() {
 }
 
 async function addBlog() {
+  const { valid } = await form.value.validate();
+  if (!valid) {
+    text.value = "Please fill the required fields";
+    snackbar.value = true;
+    return;
+  }
+  if (!photoInitial.value) {
+    text.value = "Please upload a photo";
+    snackbar.value = true;
+    return;
+  }
+  if (!blogData.value.content) {
+    text.value = "Please provide content";
+    snackbar.value = true;
+    return;
+  }
   loading.value.uploadBlog = true;
   blogData.value.titleLowcase = blogData.value.title.toLowerCase();
   blogData.value.searchKeywords = blogData.value.titleLowcase
@@ -298,6 +331,8 @@ async function addBlog() {
   const blog = doc(collection(db, "blogs"));
   await setDoc(blog, blogData.value);
   loading.value.uploadBlog = false;
+  text.value = "Successfully added";
+  snackbar.value = true;
   router.push({ name: "MyBlogs" });
 }
 </script>

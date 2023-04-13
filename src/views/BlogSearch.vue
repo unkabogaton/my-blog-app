@@ -88,6 +88,23 @@
         </v-row>
       </v-card>
     </div>
+    <div class="text-center mb-15">
+      <v-btn
+        v-if="hasMore && !loading"
+        @click="loadMore"
+        color="primary"
+        size="small"
+        >Load More</v-btn
+      >
+      <div v-if="paginationLoading">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          :size="40"
+          :width="8"
+        ></v-progress-circular>
+      </div>
+    </div>
   </v-container>
 </template>
 
@@ -102,12 +119,16 @@ import {
   orderBy,
   startAt,
   endAt,
-  limit
+  limit,
+  startAfter
 } from "firebase/firestore";
 
 const search = ref("");
 const loading = ref(false);
 const blogs = ref([]);
+const lastVisible = ref(null);
+const hasMore = ref(true);
+const paginationLoading = ref(false);
 
 onMounted(async () => {
   fetchBlog();
@@ -115,9 +136,22 @@ onMounted(async () => {
 
 async function fetchBlog() {
   loading.value = true;
-  const q = query(collection(db, "blogs"), orderBy("dateCreated", "desc"));
+  const q = query(
+    collection(db, "blogs"),
+    orderBy("dateCreated", "desc"),
+    limit(15)
+  );
   const querySnapshot = await getDocs(q);
+  if (querySnapshot.empty) {
+    hasMore.value = false;
+    loading.value = false;
+    return;
+  }
+  lastVisible.value = querySnapshot.docs[querySnapshot.docs.length - 1];
   blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  if (querySnapshot.docs.length < 15) {
+    hasMore.value = false;
+  }
   loading.value = false;
 }
 
@@ -152,6 +186,33 @@ async function searchBlog() {
     ...newBlogs
   ];
   loading.value = false;
+}
+
+async function loadMore() {
+  paginationLoading.value = true;
+  if (!lastVisible.value) return;
+  const q = query(
+    collection(db, "blogs"),
+    orderBy("dateCreated", "desc"),
+    startAfter(lastVisible.value),
+    limit(15)
+  );
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.empty) {
+    hasMore.value = false;
+    paginationLoading.value = false;
+    return;
+  }
+  lastVisible.value = querySnapshot.docs[querySnapshot.docs.length - 1];
+  console.log(querySnapshot.docs.length);
+  blogs.value = [
+    ...blogs.value,
+    ...querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  ];
+  if (querySnapshot.docs.length < 12) {
+    hasMore.value = false;
+  }
+  paginationLoading.value = false;
 }
 </script>
 

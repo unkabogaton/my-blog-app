@@ -118,7 +118,6 @@
             color="main"
             class="mr-auto"
             @click.prevent="dialog.delete = false"
-            :loading="loading"
             >Cancel</v-btn
           >
           <v-btn
@@ -133,6 +132,14 @@
       </v-card>
     </v-dialog>
   </v-container>
+  <v-snackbar v-model="snackbar">
+    {{ text }}
+    <template v-slot:actions>
+      <v-btn color="primary" variant="text" @click="snackbar = false">
+        Close
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
 <script setup>
@@ -159,6 +166,8 @@ const loading = ref({
   button: false,
   data: false
 });
+const snackbar = ref(false);
+const text = ref("");
 
 onMounted(async () => {
   fetchBlog();
@@ -168,8 +177,10 @@ async function deleteBlog() {
   loading.value.button = true;
   await deleteDoc(doc(db, "blogs", blogParams.value.id));
   loading.value.button = false;
+  dialog.value.delete = false;
+  text.value = "Deleted successfully";
+  snackbar.value = true;
   fetchBlog();
-  alert("Deleted");
 }
 
 async function fetchBlog() {
@@ -184,15 +195,6 @@ async function fetchBlog() {
   blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   loading.value.data = false;
 }
-// const newBlogs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-// blogs.value = [
-//   ...blogs.value.filter(blog => newBlogs.every(newBlog => newBlog.id !== blog.id)),
-//   ...newBlogs
-// ];
-// blogs.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-// blogs.value = [...blogs.value, ...querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))];
-// async function (){}
-// const q = query(citiesRef, orderBy("title", "desc"), limit(3));
 </script>
 
 <style></style>

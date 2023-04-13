@@ -60,11 +60,9 @@
               {{ new Date(blog.dateUpdated).toString().split(" GMT")[0] }}</span
             >
           </div>
-          <div
-            class="text-body-1 mt-7 text-justify"
-            v-html="blog.content"
-          ></div></v-col
-        ><v-col cols="2">
+          <div class="text-body-1 mt-7 text-justify" v-html="blog.content"></div
+        ></v-col>
+        <!-- <v-col cols="2">
           <div class="text-h6 text-main">Categories</div>
           <div
             class="text-subtitle-2 text-secondary mt-1"
@@ -74,28 +72,28 @@
             {{ cat }}
           </div>
           <div class="text-h6 text-main mt-5">Recent Posts</div>
-        </v-col></v-row
-      >
+        </v-col> -->
+      </v-row>
     </v-container>
   </div>
 </template>
 
 <script setup>
-import { readonly, ref, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/firebase";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const categories = readonly([
-  "Technology",
-  "Management",
-  "Archives",
-  "Collection",
-  "Reading",
-  "Professionals"
-]);
+// const categories = readonly([
+//   "Technology",
+//   "Management",
+//   "Archives",
+//   "Collection",
+//   "Reading",
+//   "Professionals"
+// ]);
 const blog = ref("");
 const loading = ref(false);
 

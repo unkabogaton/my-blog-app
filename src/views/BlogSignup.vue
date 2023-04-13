@@ -81,7 +81,7 @@ function signup() {
       console.log(token.uid);
       await setDoc(doc(db, "users", token.uid), user.value);
       loading.value = false;
-      router.push({ name: "MyBlogs" });
+      router.push({ name: "Home" });
     })
     .catch(error => {
       const errorCode = error.code;

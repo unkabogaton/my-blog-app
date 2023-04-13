@@ -3,18 +3,18 @@
  *
  * Bootstraps Vuetify and other plugins then mounts the App`
  */
-
 // Components
-import App from './App.vue'
+import App from "./App.vue";
 
 // Composables
-import { createApp } from 'vue'
+import { createApp } from "vue";
 
+import "@/firebase";
 // Plugins
-import { registerPlugins } from '@/plugins'
+import { registerPlugins } from "@/plugins";
 
-const app = createApp(App)
+// use
+const app = createApp(App);
+registerPlugins(app);
 
-registerPlugins(app)
-
-app.mount('#app')
+app.mount("#app");

@@ -55,7 +55,7 @@ function login() {
       console.log(errorCode, errorMessage);
     }
   );
-  router.push({ name: "MyBlogs" });
+  router.push({ name: "Home" });
   loading.value = false;
 }
 </script>

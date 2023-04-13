@@ -1,5 +1,5 @@
 <template>
-  <v-app> <NavBar /> </v-app>
+  <v-app> <NavBar /></v-app>
 </template>
 
 <script setup>

@@ -32,21 +32,26 @@
         >
           {{ blog.title }}
         </div>
-        <v-btn variant="elevated" color="primary" size="small" class="mt-3"
+        <v-btn
+          variant="elevated"
+          color="primary"
+          size="small"
+          class="mt-3"
+          :to="{ name: 'View', params: { id: blog.id } }"
           >Read More</v-btn
         >
       </div>
     </v-app-bar>
     <v-container class="mt-5" style="min-height: 140vh">
-      <div class="text-h6 mb-4 text-secondary">Insight Topics</div>
+      <!-- <div class="text-h6 mb-4 text-secondary">Insight Topics</div>
       <v-row>
         <v-col v-for="(cat, i) in categories" :key="i" cols="2">
           <v-card to="#" class="text-center pa-2" elevation="9"
             ><div class="font-weight-medium">{{ cat }}</div></v-card
           ></v-col
         >
-      </v-row>
-      <div class="text-h6 mt-9 mb-2 text-secondary">All Articles</div>
+      </v-row> -->
+      <div class="text-h6 mt-2 mb-2 text-secondary">All Articles</div>
       <v-chip-group
         selected-class="text-primary"
         filter
@@ -132,14 +137,14 @@ import {
 
 // const blogs = useCollection(collection(db, "blogs"));
 
-const categories = ref([
-  "Technology",
-  "Management",
-  "Archives",
-  "Collection",
-  "Reading",
-  "Professionals"
-]);
+// const categories = ref([
+//   "Technology",
+//   "Management",
+//   "Archives",
+//   "Collection",
+//   "Reading",
+//   "Professionals"
+// ]);
 const selection = ref({
   text: "Alphabetical",
   field: "title",
