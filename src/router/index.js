@@ -5,7 +5,10 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: () => import("@/views/BlogHome.vue")
+    component: () => import("@/views/BlogHome.vue"),
+    meta: {
+      title: "Home"
+    }
   },
   {
     path: "/create",
@@ -13,14 +16,24 @@ const routes = [
     component: () => import("@/views/BlogCreate.vue")
   },
   {
-    path: "/view",
+    path: "/view/:id",
     name: "View",
     component: () => import("@/views/BlogView.vue")
+  },
+  {
+    path: "/edit/:id",
+    name: "Edit",
+    component: () => import("@/views/BlogEdit.vue")
   },
   {
     path: "/my-blogs",
     name: "MyBlogs",
     component: () => import("@/views/BlogList.vue")
+  },
+  {
+    path: "/search",
+    name: "Search",
+    component: () => import("@/views/BlogSearch.vue")
   },
   {
     path: "/login",
@@ -37,6 +50,11 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+});
+
+router.beforeEach((to, from, next) => {
+  document.title = `Lib Hub | ${to.meta.title}`;
+  next();
 });
 
 export default router;
